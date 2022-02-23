@@ -8,18 +8,23 @@ import {
   BL,
   BR,
   Container,
+  SliderContainerFront,
+  SliderContainerBack,
 } from './Flip.styled';
 
 export default function Flip() {
   const wrapperDom = useRef<HTMLDivElement>(null!);
   const containerDom = useRef<HTMLDivElement>(null!);
-  const topContainerDom = useRef<HTMLDivElement>(null!);
+  const frontContainerDom = useRef<HTMLDivElement>(null!);
 
   const [percentage, setPercentage] = useState(0);
   const [scrollY, setScrollY] = useState(0);
-  const [isInActiveArea, setIsInActiveArea] = useState(false);
 
-  console.log(percentage);
+  const handlePercentage = (percentage: number) => {
+    if (percentage >= 1) setPercentage(1);
+    else if (percentage <= 0) setPercentage(0);
+    else setPercentage(percentage);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,46 +39,45 @@ export default function Flip() {
   }, []);
 
   useEffect(() => {
+    // TODO: move all properties that does not change to chang in scrollY
     const containerRect = containerDom.current.getBoundingClientRect();
 
-    const hStart = 0; //TODO:
-    const hEnd = containerRect.height;
-    const yStart = wrapperDom.current.offsetTop + hStart;
-    const yEnd =
-      wrapperDom.current.offsetTop + wrapperDom.current.offsetHeight - hEnd;
+    // all value in px
+    const hStartOffset = 100; //? height from top of wrapper to 'start transition position'
+    const hEndOffset = containerRect.height + hStartOffset; //? height from bottom of wrapper to 'stop transition position'
+    // TODO: if yStart is negative make it 0
+    const yStart = wrapperDom.current.offsetTop - hStartOffset; //? height from top of page to 'start transition position'
+    const yEnd = //? height from top of page to 'stop transition position'
+      wrapperDom.current.offsetTop +
+      wrapperDom.current.offsetHeight -
+      hEndOffset;
 
-    // console.log(scrollY + containerRect.y); //! it always the value from start of the page to top of container
-    // console.log(
-    //   (scrollY - wrapperDom.current.offsetTop) /
-    //     wrapperDom.current.offsetHeight,
-    // );
-    setPercentage(
-      (scrollY + hEnd - wrapperDom.current.offsetTop) /
-        wrapperDom.current.offsetHeight,
-    );
+    containerDom.current.style.top = `${hStartOffset}px`;
+    const yContainer = scrollY + containerRect.y; //? it always the value from top of the page to top of container
 
-    if (scrollY >= yStart && scrollY < yEnd) {
-      setIsInActiveArea(true);
-    } else {
-      setIsInActiveArea(false);
-    }
+    handlePercentage((scrollY - yStart) / (yEnd - yStart));
   }, [scrollY]);
 
   useEffect(() => {
-    topContainerDom.current.style.opacity = `${1 - percentage}`;
+    // topContainerDom.current.style.opacity = `${1 - percentage}`;
+    frontContainerDom.current.style.transform = ` translateX(${
+      -percentage * containerDom.current.offsetWidth
+    }px)`;
   }, [percentage]);
 
   return (
-    <Wrapper ref={wrapperDom}>
+    <Wrapper ref={wrapperDom} height="50em">
+      {/* the area that container will move in */}
       <Container ref={containerDom}>
-        <SliderContainer ref={topContainerDom}>
+        {/* the container that will contain all element that will transition */}
+        <SliderContainerFront ref={frontContainerDom}>
           <TL />
           <TR />
-        </SliderContainer>
-        <SliderContainer>
+        </SliderContainerFront>
+        <SliderContainerBack>
           <BL />
           <BR />
-        </SliderContainer>
+        </SliderContainerBack>
       </Container>
     </Wrapper>
   );
