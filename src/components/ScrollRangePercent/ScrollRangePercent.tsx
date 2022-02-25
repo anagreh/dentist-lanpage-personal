@@ -49,13 +49,16 @@ export const ScrollRangePercent: React.FC<props> = ({
   useEffect(() => {
     const handleData: ResizeObserverCallback = () => {
       let hOffsetEndChild = 0;
-      if (offsetMaxChild) {
-        wrapperDom.current.childNodes.forEach((child) => {
-          const divChild = child as HTMLElement;
-          if (divChild.scrollHeight > hOffsetEndChild)
-            hOffsetEndChild = divChild.scrollHeight;
-        });
-      }
+      // FIXME:
+      // if (offsetMaxChild) {
+      //   wrapperDom.current.childNodes.forEach((child) => {
+      //     const divChild = child as HTMLElement;
+      //     console.log(divChild.scrollHeight);
+
+      //     if (divChild.scrollHeight > hOffsetEndChild)
+      //       hOffsetEndChild = divChild.scrollHeight;
+      //   });
+      // }
 
       // all value in px
       // const hStartOffset = hStartOffset;
