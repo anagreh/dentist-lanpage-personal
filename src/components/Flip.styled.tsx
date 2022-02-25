@@ -1,12 +1,5 @@
 import styled from 'styled-components';
 
-export const Wrapper = styled.div<{ height?: string }>`
-  position: relative;
-  height: ${({ height }) => (height ? height : '100%')};
-
-  background-color: rgba(30, 30, 30, 20%);
-`;
-
 export const Container = styled.div`
   position: sticky;
   top: 0;

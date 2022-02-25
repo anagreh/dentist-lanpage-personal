@@ -1,8 +1,6 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
-  Wrapper,
-  SliderContainer,
   TL,
   TR,
   BL,
@@ -11,13 +9,26 @@ import {
   SliderContainerFront,
   SliderContainerBack,
 } from './Flip.styled';
+import { Wrapper } from './ScrollRangePercent/Wrapper.styled';
 
-export default function Flip() {
+interface props {
+  hStartOffset?: number;
+  hEndOffsetExtra?: number;
+  height?: string;
+  setPercentage: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export const Flip: React.FC<props> = ({
+  hStartOffset = 0,
+  hEndOffsetExtra = 0,
+  height = '100%',
+  setPercentage,
+}) => {
   const wrapperDom = useRef<HTMLDivElement>(null!);
   const containerDom = useRef<HTMLDivElement>(null!);
   const frontContainerDom = useRef<HTMLDivElement>(null!);
 
-  const [percentage, setPercentage] = useState(0);
+  // const [percentage, setPercentage] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
   const handlePercentage = (percentage: number) => {
@@ -43,9 +54,9 @@ export default function Flip() {
     const containerRect = containerDom.current.getBoundingClientRect();
 
     // all value in px
-    const hStartOffset = 100; //? height from top of wrapper to 'start transition position'
-    const hEndOffset = containerRect.height + hStartOffset; //? height from bottom of wrapper to 'stop transition position'
-    // TODO: if yStart is negative make it 0
+    // const hStartOffset = hStartOffset; //? height from top of wrapper to 'start transition position'
+    const hEndOffset = containerRect.height + hStartOffset + hEndOffsetExtra; //? height from bottom of wrapper to 'stop transition position'
+    // TODO: if yStart is negative make it 0 and make sure yEnd is higher than yStart
     const yStart = wrapperDom.current.offsetTop - hStartOffset; //? height from top of page to 'start transition position'
     const yEnd = //? height from top of page to 'stop transition position'
       wrapperDom.current.offsetTop +
@@ -56,21 +67,22 @@ export default function Flip() {
     const yContainer = scrollY + containerRect.y; //? it always the value from top of the page to top of container
 
     handlePercentage((scrollY - yStart) / (yEnd - yStart));
-  }, [scrollY]);
+  }, [hEndOffsetExtra, hStartOffset, scrollY]);
 
-  useEffect(() => {
-    // topContainerDom.current.style.opacity = `${1 - percentage}`;
-    frontContainerDom.current.style.transform = ` translateX(${
-      -percentage * containerDom.current.offsetWidth
-    }px)`;
-  }, [percentage]);
+  // useEffect(() => {
+  //   // topContainerDom.current.style.opacity = `${1 - percentage}`;
+  //   frontContainerDom.current.style.transform = ` translateX(${
+  //     -percentage * containerDom.current.offsetWidth
+  //   }px)`;
+  // }, [percentage]);
 
   return (
-    <Wrapper ref={wrapperDom} height="50em">
+    <Wrapper ref={wrapperDom} height={height}>
       {/* the area that container will move in */}
       <Container ref={containerDom}>
-        {/* the container that will contain all element that will transition */}
+        {/* the container that will stick to screen throw Wrapper height*/}
         <SliderContainerFront ref={frontContainerDom}>
+          {/* the container that will be animated based on scroll percentage of wrapper*/}
           <TL />
           <TR />
         </SliderContainerFront>
@@ -81,4 +93,6 @@ export default function Flip() {
       </Container>
     </Wrapper>
   );
-}
+};
+
+export default Flip;

@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { transform } from 'typescript';
-import {
-  Wrapper,
-  SliderContainer,
-  TL,
-  TR,
-  BL,
-  BR,
-  Container,
-} from './Flip.styled';
+import { SliderContainer, TL, TR, BL, BR, Container } from './Flip.styled';
+import { Wrapper } from './ScrollRangePercent/Wrapper.styled';
 
 export default function Flip() {
   const wrapper = useRef<HTMLDivElement>(null!);
