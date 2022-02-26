@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, createContext } from 'react';
 import { Wrapper } from './Wrapper.styled';
+
+export const percentageContext = createContext(0);
 
 interface props {
   hStartOffset?: number;
   hEndOffsetExtra?: number;
   height?: string;
-  setPercentage: React.Dispatch<React.SetStateAction<number>>;
   offsetMaxChild?: boolean;
 }
 
@@ -20,12 +21,12 @@ export const ScrollRangePercent: React.FC<props> = ({
   hStartOffset = 0,
   hEndOffsetExtra = 0,
   height = '100%',
-  setPercentage,
   children,
   offsetMaxChild = false,
 }) => {
   const wrapperDom = useRef<HTMLDivElement>(null!);
 
+  const [scrollPercent, setScrollPercent] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [data, setData] = useState<IData>({
     hStartOffset: 0,
@@ -62,6 +63,7 @@ export const ScrollRangePercent: React.FC<props> = ({
 
       // all value in px
       // const hStartOffset = hStartOffset;
+
       const hEndOffset = hStartOffset + hEndOffsetExtra + hOffsetEndChild;
       const yStart = wrapperDom.current.offsetTop - hStartOffset;
       const yEnd =
@@ -90,19 +92,21 @@ export const ScrollRangePercent: React.FC<props> = ({
 
   useEffect(() => {
     const handlePercentage = (percentage: number) => {
-      if (percentage >= 1) setPercentage(1);
-      else if (percentage <= 0) setPercentage(0);
-      else setPercentage(percentage);
+      if (percentage >= 1) setScrollPercent(1);
+      else if (percentage <= 0) setScrollPercent(0);
+      else setScrollPercent(percentage);
     };
 
     handlePercentage((scrollY - data.yStart) / (data.yEnd - data.yStart));
-  }, [data, scrollY, setPercentage]);
+  }, [data, scrollY]);
 
   return (
-    <Wrapper ref={wrapperDom} height={height}>
-      {/* the area that container will move in */}
-      {children}
-    </Wrapper>
+    <percentageContext.Provider value={scrollPercent}>
+      <Wrapper ref={wrapperDom} height={height}>
+        {/* the area that container will move in */}
+        {children}
+      </Wrapper>
+    </percentageContext.Provider>
   );
 };
 
