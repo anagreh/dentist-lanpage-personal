@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import './styles/App.css';
 
 import { lightTheme } from './styles/themes/theme';
 // import ScrollRangePercent from './components/ScrollRangePercent';
-import useScrollRangePercent from './hooks/useScrollRangePercent';
+// import useScrollRangePercent from './hooks/useScrollRangePercent';
 import { LineOnScroll } from './components/LineOnScroll/LineOnScroll';
+import ScrollRangePercent, {
+  percentageContext,
+} from './components/ScrollRangePercent/ScrollRangePercent';
+import { Svg } from './components/LineOnScroll/Svg';
+import { Path } from './components/LineOnScroll/Path';
 
 function App() {
   // const [percentage, setPercentage] = useState(0);
-  const { ScrollRangePercent, propsScrollRangePercent, percentage } =
-    useScrollRangePercent();
+  // const { ScrollRangePercent, propsScrollRangePercent, percentage } =
+  //   useScrollRangePercent();
+
+  const percentage = useContext(percentageContext); //! will not work because it is not inside context provider
 
   return (
     <ThemeProvider theme={lightTheme}>
       <div className="App">
-        <div className="block"></div>
-        {/* <Flip hStartOffset={100} height="500px" setPercentage={setPercentage} /> */}
-        <ScrollRangePercent
-          {...propsScrollRangePercent}
-          height={'800px'}
-          hStartOffset={100}
-          hEndOffsetExtra={100}
-        >
-          <div
+        <div className="block">
+          {/* <Flip hStartOffset={100} height="500px" setPercentage={setPercentage} /> */}
+          <ScrollRangePercent height={'800px'} hStartOffset={400}>
+            {/* <div
             className="block"
             style={{
               backgroundColor: 'blueviolet',
@@ -32,32 +34,39 @@ function App() {
               top: '100px',
               opacity: 1 - percentage,
             }}
-          ></div>
-          <LineOnScroll percentage={percentage}>
-            <svg
-              width="187"
-              height="509"
-              viewBox="0 0 187 509"
+          ></div> */}
+            <Svg
+              width="233"
+              height="842"
+              viewBox="0 0 233 842"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M89 1C39 130 -17 71 57 196C131 321 143 317 116 350C89 383 67 347 69 315C71 283 156 375 154 325C152 275 189 261 146 261C103 261 107 253 78 284C49 315 2 305 40 350C78 395 210 391 163 424C116 457 116 453 116 471C116 485.4 116 502.333 116 509"
+              <Path
+                d="M117 -1C76.1973 136.641 87.7732 294.358 118.775 355.511C132.443 397.345 169.279 469.421 207.281 423.054C254.784 365.095 234.283 233.204 141.777 264.694C49.2707 296.183 -3.23278 297.096 1.26752 367.377C5.76782 437.657 34.2697 464.127 67.7719 515.696C101.274 567.266 67.7719 591.007 67.7719 612C67.7719 628.794 59.5 638 90 714C120.5 790 116 842 116 842"
                 stroke="black"
               />
-              <path
-                d="M14 294C-5.33334 270.667 -17.2 229.6 90 252L102 302L14 294Z"
+            </Svg>
+          </ScrollRangePercent>
+          <ScrollRangePercent
+            height={'800px'}
+            hStartOffset={400}
+            hEndOffsetExtra={260}
+          >
+            <Svg
+              width="233"
+              height="842"
+              viewBox="0 0 233 842"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <Path
+                d="M117 -1C76.1973 136.641 87.7732 294.358 118.775 355.511C132.443 397.345 169.279 469.421 207.281 423.054C254.784 365.095 234.283 233.204 141.777 264.694C49.2707 296.183 -3.23278 297.096 1.26752 367.377C5.76782 437.657 34.2697 464.127 67.7719 515.696C101.274 567.266 67.7719 591.007 67.7719 612C67.7719 628.794 59.5 638 90 714C120.5 790 116 842 116 842"
                 stroke="black"
               />
-              <path
-                d="M139 348C142 332 153 323 186 348V372L153 378C147.333 373.333 136.6 360.8 139 348Z"
-                stroke="black"
-              />
-            </svg>
-          </LineOnScroll>
-
-          <p>HI</p>
-        </ScrollRangePercent>
+            </Svg>
+          </ScrollRangePercent>
+        </div>
         <div className="block"></div>
         <div className="block"></div>
         <div className="block"></div>
