@@ -45,11 +45,9 @@ export const Path: React.FC<props> = ({
   }, [cubicBezierPoint, lineSegmentPoint]);
 
   useEffect(() => {
-    console.log(scrollPercent);
-
     pathDom.current.style.strokeDashoffset =
       (1 - graph(scrollPercent)) * pathLength + 'px';
   }, [graph, pathLength, scrollPercent]);
 
-  return <Path ref={pathDom} {...props} />;
+  return <path ref={pathDom} {...props} />;
 };
