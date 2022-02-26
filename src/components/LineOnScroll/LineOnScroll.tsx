@@ -1,27 +1,41 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { percentageContext } from '../ScrollRangePercent/ScrollRangePercent';
 import { LineContainer } from './LineContainer.styled';
 
 interface IProps {
-  percentage: number;
   children: JSX.Element;
+  animGraphPoint?: [number, number][];
 }
 
-export const LineOnScroll: React.FC<IProps> = ({ percentage, children }) => {
+export const LineOnScroll: React.FC<IProps> = ({
+  children,
+  animGraphPoint,
+}) => {
+  const scrollPercent = useContext(percentageContext);
+
   const container = useRef<HTMLDivElement>(null!);
-  const [pathLength, setPathLength] = useState(0);
+  const [animatedElem, setAnimatedElem] = useState<SVGPathElement[]>([]);
+  // const [pathLength, setPathLength] = useState(0);
 
   useEffect(() => {
-    console.log(container.current.childNodes[0].childNodes);
-  }, [children]);
-  // useEffect(() => {
-  //   const pathLength = path.current.getTotalLength();
-  //   setPathLength(pathLength);
-  //   path.current.style.strokeDasharray = pathLength.toString();
-  // }, []);
+    const children = container.current.children[0].children;
+    for (let i = 0; i < children.length; i++) {
+      const element = children[i];
+      console.log(element.tagName);
 
-  // useEffect(() => {
-  //   path.current.style.strokeDashoffset = (1 - percentage) * pathLength + 'px';
-  // }, [pathLength, percentage]);
+      if (element.tagName === 'path') {
+        const newElem = element as SVGPathElement;
+        setAnimatedElem((prevValue) => [...prevValue, newElem]);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    animatedElem.forEach((elem) => {
+      const pathLength = elem?.getTotalLength();
+      elem.style.strokeDasharray = pathLength.toString();
+      elem.style.strokeDashoffset = (1 - scrollPercent) * pathLength + 'px';
+    });
+  }, [animatedElem, scrollPercent]);
 
   return <LineContainer ref={container}>{children}</LineContainer>;
 };
