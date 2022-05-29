@@ -5,15 +5,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { percentageContext } from '../ScrollRangePercent/ScrollRangePercent';
+import { percentageContext } from '../ScrollRangePercent';
 import graphLineSegmentMaker from '../../helper/graphLineSegmentMaker';
 import BezierEasing from 'bezier-easing';
 
 interface props extends React.SVGProps<SVGPathElement> {
   lineSegmentPoint?: [number, number][];
   cubicBezierPoint?: [x1: number, y1: number, x2: number, y2: number];
-  percentStartAt?: number;
-  percentEndAt?: number;
+  // percentStartAt?: number;
+  // percentEndAt?: number;
 }
 
 export const Path: React.FC<props> = ({

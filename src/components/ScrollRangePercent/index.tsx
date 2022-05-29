@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, createContext } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  createContext,
+  useCallback,
+} from 'react';
 import { Wrapper } from './Wrapper.styled';
 
 export const percentageContext = createContext(0);
@@ -7,7 +13,9 @@ interface props {
   hStartOffset?: number;
   hEndOffsetExtra?: number;
   height?: string;
-  offsetMaxChild?: boolean;
+  // offsetMaxChild?: boolean;
+  forwards?: boolean;
+  style?: React.CSSProperties;
 }
 
 interface IData {
@@ -22,56 +30,46 @@ export const ScrollRangePercent: React.FC<props> = ({
   hEndOffsetExtra = 0,
   height = '100%',
   children,
-  offsetMaxChild = false,
+  // offsetMaxChild = false,
+  forwards = false,
+  style,
 }) => {
   const wrapperDom = useRef<HTMLDivElement>(null!);
 
+  const [scrollYEnd, setScrollYEnd] = useState(0);
   const [scrollPercent, setScrollPercent] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
   const [data, setData] = useState<IData>({
     hStartOffset: 0,
     hEndOffset: 0,
     yStart: 0,
-    yEnd: 1,
+    yEnd: Infinity,
   });
 
+  //TODO: add intersection observer so that handle scroll will not listen to scroll until the viewport is near the yStart or yEnd
+
+  const handleScroll = useCallback(() => {
+    setScrollYEnd(window.scrollY + window.innerHeight);
+  }, []);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+    handleScroll();
 
     window.addEventListener('scroll', handleScroll);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [handleScroll]);
 
   useEffect(() => {
     const handleData: ResizeObserverCallback = () => {
-      let hOffsetEndChild = 0;
-      // FIXME:
-      // if (offsetMaxChild) {
-      //   wrapperDom.current.childNodes.forEach((child) => {
-      //     const divChild = child as HTMLElement;
-      //     console.log(divChild.scrollHeight);
+      const rect = wrapperDom.current.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      //     if (divChild.scrollHeight > hOffsetEndChild)
-      //       hOffsetEndChild = divChild.scrollHeight;
-      //   });
-      // }
-
-      // all value in px
-      // const hStartOffset = hStartOffset;
-
-      const hEndOffset = hStartOffset + hEndOffsetExtra + hOffsetEndChild;
-      const yStart = wrapperDom.current.offsetTop - hStartOffset;
+      const hEndOffset = hStartOffset + hEndOffsetExtra; //+ hOffsetEndChild;
+      const yStart = rect.top + scrollTop + hStartOffset;
       const yEnd =
-        wrapperDom.current.offsetTop +
-        wrapperDom.current.scrollHeight -
-        hEndOffset;
-
-      // const yContainer = scrollY + containerRect.y; //? it always the value from top of the page to top of container
+        rect.top + scrollTop + wrapperDom.current.scrollHeight + hEndOffset;
 
       setData({
         hStartOffset: hStartOffset,
@@ -82,27 +80,36 @@ export const ScrollRangePercent: React.FC<props> = ({
     };
 
     const wrapperObserver = new ResizeObserver(handleData);
-
     wrapperObserver.observe(wrapperDom.current);
 
     return () => {
       wrapperObserver.disconnect();
     };
-  }, [hEndOffsetExtra, hStartOffset, offsetMaxChild]);
+  }, [hEndOffsetExtra, hStartOffset]);
 
   useEffect(() => {
     const handlePercentage = (percentage: number) => {
-      if (percentage >= 1) setScrollPercent(1);
-      else if (percentage <= 0) setScrollPercent(0);
-      else setScrollPercent(percentage);
+      if (forwards) {
+        if (percentage > 1) {
+          setScrollPercent(1);
+          window.removeEventListener('scroll', handleScroll);
+        } else
+          setScrollPercent((oldPercentage) =>
+            oldPercentage > percentage ? oldPercentage : percentage,
+          );
+      } else {
+        if (percentage > 1) setScrollPercent(1);
+        else if (percentage < 0) setScrollPercent(0);
+        else if (percentage) setScrollPercent(percentage);
+      }
     };
 
-    handlePercentage((scrollY - data.yStart) / (data.yEnd - data.yStart));
-  }, [data, scrollY]);
+    handlePercentage((scrollYEnd - data.yStart) / (data.yEnd - data.yStart));
+  }, [data, forwards, handleScroll, scrollYEnd]);
 
   return (
     <percentageContext.Provider value={scrollPercent}>
-      <Wrapper ref={wrapperDom} height={height}>
+      <Wrapper style={style} ref={wrapperDom} height={height}>
         {/* the area that container will move in */}
         {children}
       </Wrapper>

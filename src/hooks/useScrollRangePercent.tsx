@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ScrollRangePercent from '../components/ScrollRangePercent/ScrollRangePercent';
+import ScrollRangePercent from '../components/ScrollRangePercent';
 
 const useScrollRangePercent = () => {
   const [percentage, setPercentage] = useState(0);

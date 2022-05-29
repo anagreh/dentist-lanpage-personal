@@ -1,16 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { percentageContext } from '../ScrollRangePercent/ScrollRangePercent';
+import { percentageContext } from '../ScrollRangePercent';
 import { LineContainer } from './LineContainer.styled';
 
 interface IProps {
   children: JSX.Element;
-  animGraphPoint?: [number, number][];
+  zIndex?: number;
 }
 
-export const LineOnScroll: React.FC<IProps> = ({
-  children,
-  animGraphPoint,
-}) => {
+export const LineOnScroll: React.FC<IProps> = ({ children, zIndex }) => {
   const scrollPercent = useContext(percentageContext);
 
   const container = useRef<HTMLDivElement>(null!);
@@ -21,7 +18,6 @@ export const LineOnScroll: React.FC<IProps> = ({
     const children = container.current.children[0].children;
     for (let i = 0; i < children.length; i++) {
       const element = children[i];
-      console.log(element.tagName);
 
       if (element.tagName === 'path') {
         const newElem = element as SVGPathElement;
@@ -37,5 +33,9 @@ export const LineOnScroll: React.FC<IProps> = ({
     });
   }, [animatedElem, scrollPercent]);
 
-  return <LineContainer ref={container}>{children}</LineContainer>;
+  return (
+    <LineContainer ref={container} zIndex={zIndex}>
+      {children}
+    </LineContainer>
+  );
 };
